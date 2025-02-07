@@ -22,7 +22,7 @@ export const useProductStore = defineStore('product', {
         console.error('Error adding product', error);
       }
     },
-    async fetchProducts(sortBy: 'price' | null = null, filterCategory: string | null = null): Promise<void> {
+    async fetchProducts(sortBy: "asc" | "desc" | null = null, filterCategory: string | null = null): Promise<void> {
       try {
         const response = await getProducts(sortBy, filterCategory);
         const data : Product[] = response.data;

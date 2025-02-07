@@ -27,7 +27,6 @@ import { useDataStore } from '../stores/dataStore';
 import type { Category } from '@/types/category';
 import { useCategoryStore } from '@/stores/category';
 
-const store = useDataStore();
 const categoryStore = useCategoryStore();
 
 const name = ref<string>('');

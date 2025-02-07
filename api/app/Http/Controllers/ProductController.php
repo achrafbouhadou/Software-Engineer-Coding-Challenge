@@ -8,7 +8,9 @@ use App\Http\Requests\ProductRequest;
 use Illuminate\Routing\Controller;
 use App\Traits\ResponseTrait;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
+use Throwable;
 
 class ProductController extends Controller
 {
@@ -21,18 +23,29 @@ class ProductController extends Controller
 
     public function index(Request $request)
     {
+      try {
+         $validator = Validator::make($request->query(), [
+            'filterCategory' => 'nullable|string|exists:categories,id',
+            'sort' => 'nullable|string|in:asc,desc',
+        ]);
+
+        if ($validator->fails()) {
+               return $this->generateResponse(false, $validator->errors()->first(), [], 422);
+         }
+
          $filters = [
-            'category' => $request->query('category'),
+            'category' => $request->query('filterCategory'),
          ];
          $sort = [
-            'price' => $request->query('sort', 'asc')
+            'price' => $request->query('sortBy', 'asc')
          ];
 
          $products = $this->productService->list($filters, $sort);
 
-
-
          return $this->generateResponse(true,'', $products , 200);
+      } catch (Throwable $e) {
+         return $this->generateResponse(false, $e->getMessage(), null, 400);
+      }
     }
 
     public function store(ProductRequest $request)
@@ -42,9 +55,9 @@ class ProductController extends Controller
             $product = $this->productService->create($request->validated());
             DB::commit();
             return $this->generateResponse(true, 'Product created successfully', $product, 200);
-         } catch (ValidationException $e) {
+         } catch (Throwable $e) {
             DB::rollBack();
-            return $this->generateResponse(false, $e->errors(), null, 400);
+            return $this->generateResponse(false, $e->getMessage(), null, 400);
          }
     }
 }

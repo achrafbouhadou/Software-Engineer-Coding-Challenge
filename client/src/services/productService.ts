@@ -29,7 +29,7 @@ export const createProduct = async (payload: ProductPayload): Promise<any> => {
 };
 
 export const getProducts = async (
-  sortBy: 'price' | null,
+  sortBy: "asc" | "desc" | null,
   filterCategory: string | null
 ): Promise<any> => {
   try {

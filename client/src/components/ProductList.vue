@@ -6,11 +6,11 @@
       <div class="filter-group">
         <label class="filter-label" for="categoryFilter">Filter by Category</label>
         <div class="select-wrapper">
-          <select id="categoryFilter" v-model="selectedCategory" class="custom-select">
+          <select id="categoryFilter" v-model="selectedCategory" @change="applyFilter()" class="custom-select">
             <option value="">All</option>
-            <!-- <option v-for="category in categories" :key="category.id" :value="category.id">
+            <option v-for="category in formattedCategories" :key="category.id" :value="category.id">
               {{ category.name }}
-            </option> -->
+            </option>
           </select>
         </div>
       </div>
@@ -18,7 +18,7 @@
       <div class="filter-group">
         <label class="filter-label" for="sortOrder">Sort by Price</label>
         <div class="select-wrapper">
-          <select id="sortOrder" v-model="sortOrder" class="custom-select">
+          <select id="sortOrder" v-model="sortOrder" @change="applyFilter()" class="custom-select">  
             <option value="asc">Ascending</option>
             <option value="desc">Descending</option>
           </select>
@@ -50,8 +50,11 @@
 import { ref, computed , onMounted } from 'vue';
 import { useProductStore } from '../stores/product';
 import type { Product } from '../types/product';
+import type { Category } from '@/types/category';
+import { useCategoryStore } from '@/stores/category';
 
 const productStore = useProductStore();
+const categoryStore = useCategoryStore();
 
 const selectedCategory = ref<string>('');
 const sortOrder = ref<'asc' | 'desc'>('asc');
@@ -59,10 +62,40 @@ const sortOrder = ref<'asc' | 'desc'>('asc');
 const defaultImage = 'https://img.freepik.com/premium-vector/default-image-icon-vector-missing-picture-page-website-design-mobile-app-no-photo-available_87543-11093.jpg';
 
 const products = computed<Product[]>(() => productStore.products);
+const categories = computed<Category[]>(() => categoryStore.categories);
+const formattedCategories = computed<Category[]>(() => {
+  return flattenCategories(categories.value);
+});
 
+function flattenCategories(categories: Category[]): Category[] {
+  let flatList: Category[] = [];
+
+  categories.forEach(category => {
+    flatList.push({
+      id: category.id,
+      name: category.name,
+      parent_id: category.parent_id,
+      created_at: category.created_at,
+      updated_at: category.updated_at
+    });
+
+    if (category.children && category.children.length > 0) {
+      flatList = flatList.concat(flattenCategories(category.children));
+    }
+  });
+
+  return flatList;
+}
+
+const  applyFilter = (): void => {
+  console.log('selectedCategory', selectedCategory.value);
+  console.log('sortOrder', sortOrder.value);
+  productStore.fetchProducts(sortOrder.value, selectedCategory.value);
+}
 
 onMounted(() => {
   productStore.fetchProducts();
+  categoryStore.fetchCategories();
 });
 </script>
 

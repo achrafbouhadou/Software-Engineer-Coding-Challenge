@@ -23,7 +23,7 @@ class ProductRepository implements ProductRepositoryInterface {
         // Filtering by category name
         if (!empty($filters['category'])) {
             $query->whereHas('categories', function ($q) use ($filters) {
-                $q->where('name', $filters['category']);
+                $q->where('id', $filters['category']);
             });
         }
 
