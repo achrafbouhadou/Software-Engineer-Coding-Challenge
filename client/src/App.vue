@@ -1,58 +1,56 @@
+<!-- src/App.vue -->
 <template>
   <div id="app">
-    <div class="header">
-      <h1>Product Management</h1>
-      <button class="create-button" @click="showModal = true">Create Product</button>
-    </div>
-    <ProductTable />
-    <ProductModal v-if="showModal" @close="showModal = false" />
+    <h1>Product Management</h1>
+    <nav class="tabs">
+      <button :class="{ active: activeTab === 'list' }" @click="activeTab = 'list'">
+        Product List
+      </button>
+      <button :class="{ active: activeTab === 'category' }" @click="activeTab = 'category'">
+        Add Category
+      </button>
+      <button :class="{ active: activeTab === 'product' }" @click="activeTab = 'product'">
+        Add Product
+      </button>
+    </nav>
+    <section class="tab-content">
+      <ProductList v-if="activeTab === 'list'" />
+      <CategoryForm v-if="activeTab === 'category'" />
+      <ProductForm v-if="activeTab === 'product'" />
+    </section>
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref } from 'vue';
-import ProductTable from './components/ProductTable.vue';
-import ProductModal from './components/ProductModal.vue';
+<script setup lang="ts">
+import { ref } from 'vue';
+import ProductList from './components/ProductList.vue';
+import CategoryForm from './components/CategoryForm.vue';
+import ProductForm from './components/ProductForm.vue';
 
-export default defineComponent({
-  name: 'App',
-  components: {
-    ProductTable,
-    ProductModal,
-  },
-  setup() {
-    const showModal = ref(false);
-    return { showModal };
-  },
-});
+const activeTab = ref<'list' | 'category' | 'product'>('list');
 </script>
 
 <style>
-body {
+#app {
   font-family: Arial, sans-serif;
-  margin: 0;
   padding: 20px;
-  background-color: #f5f5f5;
 }
-
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.tabs {
   margin-bottom: 20px;
 }
-
-.create-button {
+.tabs button {
   padding: 10px 15px;
-  font-size: 14px;
-  cursor: pointer;
+  margin-right: 10px;
   border: none;
-  background-color: #007bff;
-  color: #fff;
+  background-color: #eee;
+  cursor: pointer;
   border-radius: 4px;
 }
-
-.create-button:hover {
-  background-color: #0056b3;
+.tabs button.active {
+  background-color: #007bff;
+  color: #fff;
+}
+.tab-content {
+  margin-top: 20px;
 }
 </style>

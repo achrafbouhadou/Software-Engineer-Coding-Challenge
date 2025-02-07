@@ -1,6 +1,5 @@
 import axios from 'axios';
 import { showErrorToast, showSuccessToast } from '@/utility/toastUtils';
-
 const axiosClient = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
   headers: {
@@ -12,7 +11,10 @@ const axiosClient = axios.create({
 
 axiosClient.interceptors.response.use(
   (response) => {
+    console.log(response);
+    console.log(response.status === 200 && response.data.message);
     if (response.status === 200 && response.data.message) {
+
       showSuccessToast(response.data.message);
     }
     return response;

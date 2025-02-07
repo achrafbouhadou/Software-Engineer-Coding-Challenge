@@ -22,7 +22,7 @@ export const createProduct = async (payload: ProductPayload): Promise<any> => {
       formData.append('categories[]', category);
     });
 
-    const response = await axiosClient.post('api/products', formData, {
+    const response = await axiosClient.post('api/v1/products', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
