@@ -16,17 +16,6 @@ class Product extends Model
         'price' => 'float',
     ];
 
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::creating(function ($model) {
-            if (empty($model->id)) {
-                $model->id = (string) Str::uuid();
-            }
-        });
-    }
-
     public function categories()
     {
         return $this->belongsToMany(Category::class);

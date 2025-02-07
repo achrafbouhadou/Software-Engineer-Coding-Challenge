@@ -7,6 +7,8 @@ use App\Services\ProductService;
 use App\Http\Requests\ProductRequest;
 use Illuminate\Routing\Controller;
 use App\Traits\ResponseTrait;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class ProductController extends Controller
 {
@@ -35,6 +37,14 @@ class ProductController extends Controller
 
     public function store(ProductRequest $request)
     {
-         $this->productService->create($request->validated());
+         try {
+            DB::beginTransaction(); 
+            $product = $this->productService->create($request->validated());
+            DB::commit();
+            return $this->generateResponse(true, 'Product created successfully', $product, 200);
+         } catch (ValidationException $e) {
+            DB::rollBack();
+            return $this->generateResponse(false, $e->errors(), null, 400);
+         }
     }
 }

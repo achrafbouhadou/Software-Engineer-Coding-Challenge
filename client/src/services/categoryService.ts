@@ -1,5 +1,5 @@
 import axiosClient from './axiosClient';
-import type {CategoryPayload}  from '@/types/Category';
+import type {CategoryPayload}  from '@/types/category';
 
 export const createCategory = async (payload: CategoryPayload): Promise<any> => {
   try {

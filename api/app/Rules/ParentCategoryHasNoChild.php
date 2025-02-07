@@ -14,13 +14,9 @@ class ParentCategoryHasNoChild implements ValidationRule
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         if ($value) {
-            $parentCategory = Category::find($value);
-            info('parent category');
-            info($parentCategory);
-            info('child exists');
-            info($value);
-            if ($parentCategory && $parentCategory->child()->exists()) {
-                $fail('The selected parent category already has a child.');
+            $parentCategory = Category::where('id', $value)->first();
+            if ($parentCategory && $parentCategory->parent_id) {
+                $fail('The selected parent category already has a parent.');
             }
         }
     }

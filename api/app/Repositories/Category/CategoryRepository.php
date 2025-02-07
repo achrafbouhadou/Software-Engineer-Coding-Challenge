@@ -18,7 +18,7 @@ class CategoryRepository implements CategoryRepositoryInterface {
 
     public function list(string $name = null)
     {
-        $categories = Category::with('child')->when($name, function ($query) use ($name) {
+        $categories = Category::with('children')->whereNull('parent_id')->when($name, function ($query) use ($name) {
             $query->where('name', 'like', "%$name%");
         })->get();
 

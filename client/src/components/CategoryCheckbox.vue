@@ -24,22 +24,18 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import type { Category } from '../stores/dataStore';
+import type { Category } from '../types/category';
 import CategoryCheckbox from './CategoryCheckbox.vue';
 
-interface CategoryNode extends Category {
-  children?: CategoryNode[];
-}
-
 interface Props {
-  category: CategoryNode;
-  checkedCategories: number[];
+  category: Category;
+  checkedCategories: string[];
 }
 
 const props = defineProps<Props>();
 
 const emit = defineEmits<{
-  (e: 'update:checkedCategories', value: number[]): void;
+  (e: 'update:checkedCategories', value: string[]): void;
 }>();
 
 const isChecked = computed(() => props.checkedCategories.includes(props.category.id));
@@ -54,7 +50,7 @@ function toggleCategory(): void {
   emit('update:checkedCategories', newChecked);
 }
 
-function updateCheckedCategories(newChecked: number[]): void {
+function updateCheckedCategories(newChecked: string[]): void {
   emit('update:checkedCategories', newChecked);
 }
 </script>

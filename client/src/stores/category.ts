@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { createCategory, getCategories } from '@/services/categoryService';
-import type { Category ,CategoryPayload } from '@/types/Category';
+import type { Category ,CategoryPayload } from '@/types/category';
 
 
 
@@ -25,6 +25,9 @@ export const useCategoryStore = defineStore('category', {
 
     async fetchCategories(): Promise<void> {
       try {
+        if (this.categories.length > 0) {
+          return; // Prevent unnecessary API call
+        }    
         const response = await getCategories();
         const data : Category[] = response.data;
         this.categories = data;

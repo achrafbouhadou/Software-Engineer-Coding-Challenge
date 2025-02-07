@@ -17,7 +17,8 @@ class ProductRequest extends FormRequest
             'name'        => 'required|string|max:255',
             'description' => 'nullable|string',
             'price'       => 'required|numeric|min:0',
-            'image'       => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'image'       => ['nullable', 'string', 'max:2048', 'regex:/^(https?:\/\/.*\.(?:png|jpg|jpeg))$/i'],
+            'image_file'  => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'categories'  => 'nullable|array',
             'categories.*'=> 'exists:categories,id',
         ];
@@ -36,9 +37,10 @@ class ProductRequest extends FormRequest
             'price.numeric'       => 'The price must be a number.',
             'price.min'           => 'The price must be at least 0.',
 
-            'image.image'         => 'The uploaded file must be an image.',
-            'image.mimes'         => 'Only JPG and PNG images are allowed.',
-            'image.max'           => 'The image must not exceed 2MB.',
+            'image.regex'      => 'The image URL must be a valid URL ending with .png, .jpg, or .jpeg.',
+            'image_file.image' => 'The uploaded file must be an image.',
+            'image_file.mimes' => 'Only JPG and PNG images are allowed.',
+            'image_file.max'   => 'The image must not exceed 2MB.',
 
             'categories.array'    => 'Categories must be an array.',
             'categories.*.exists' => 'One or more selected categories are invalid.',

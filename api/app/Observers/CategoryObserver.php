@@ -14,11 +14,9 @@ class CategoryObserver
             $category->id = (string) Str::uuid();
         }
         if ($category->parent_id) {
-            info($category->parent_id);
             $parentCategory = Category::find($category->parent_id);
-            if ($parentCategory && $parentCategory->child()->exists()) {
-                info('child exists');
-                throw new Exception('The selected parent category already has a child.');
+            if ($parentCategory && $parentCategory->parent_id) {
+                throw new Exception('The selected parent category already has a parent.');
             }
         }
     }
@@ -35,8 +33,8 @@ class CategoryObserver
     {
         if ($category->parent_id) {
             $parentCategory = Category::find($category->parent_id);
-            if ($parentCategory && $parentCategory->child()->exists() && $parentCategory->child->id !== $category->id) {
-                throw new Exception('The selected parent category already has a child.');
+            if ($parentCategory && $parentCategory->parent_id) {
+                throw new Exception('The selected parent category already has a parent.');
             }
         }
     }

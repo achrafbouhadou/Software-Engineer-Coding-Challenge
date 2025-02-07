@@ -2,6 +2,7 @@
   <div class="product-form card">
     <h2 class="card-title">Add New Product</h2>
     <form @submit.prevent="handleSubmit">
+      <!-- Product fields -->
       <div class="form-group">
         <label for="name" class="form-label">Product Name</label>
         <input id="name" v-model="name" type="text" class="form-input" required />
@@ -14,28 +15,66 @@
         <label for="price" class="form-label">Price</label>
         <input id="price" v-model="price" type="number" step="0.01" class="form-input" required />
       </div>
+
+      <!-- Image Source Selection -->
       <div class="form-group">
-        <label class="form-label">Upload Product Image</label>
-        <div class="file-upload">
-          <input id="image" type="file" accept="image/*" @change="handleImageUpload" class="file-input" />
-          <span v-if="!image" class="file-placeholder">Choose an image file...</span>
-          <div v-if="image" class="image-preview-container">
-            <img :src="image" class="image-preview" alt="Image Preview" />
-            <button type="button" class="btn btn-secondary remove-btn" @click="removeImage">Remove Image</button>
+        <label class="form-label">Image Source</label>
+        <div class="radio-group">
+          <label>
+            <input type="radio" value="file" v-model="uploadMethod" />
+            Upload File
+          </label>
+          <label>
+            <input  type="radio" value="url" v-model="uploadMethod" />
+            Use Image URL
+          </label>
+        </div>
+      </div>
+
+      <!-- Conditional rendering for file upload or URL input -->
+      <div class="form-group">
+        <!-- File Upload -->
+        <div v-if="uploadMethod === 'file'" class="file-upload">
+          <input id="fileInput" type="file" accept="image/*" @change="handleFileUpload" class="file-input" />
+          <span v-if="!imageFile" class="file-placeholder">Choose an image file...</span>
+          <div v-if="imageFile" class="image-preview-container">
+            <img :src="imagePreview" class="image-preview" alt="Image Preview" />
+            <button type="button" class="btn btn-secondary remove-btn" @click="removeFile">
+              Remove Image
+            </button>
+          </div>
+        </div>
+        <!-- URL Input -->
+        <div v-if="uploadMethod === 'url'" class="url-upload">
+          <input
+            id="urlInput"
+            type="text"
+            v-model="imageUrl"
+            placeholder="Enter image URL"
+            class="form-input url-upload"
+          />
+          <div v-if="imageUrl" class="image-preview-container">
+            <img :src="imageUrl" class="image-preview" alt="Image Preview" />
+            <button type="button" class="btn btn-secondary remove-btn" @click="removeUrl">
+              Remove Image URL
+            </button>
           </div>
         </div>
       </div>
+
+      <!-- Categories -->
       <div class="form-group">
         <label class="form-label">Select Categories</label>
         <div class="category-tree">
           <CategoryCheckbox
-            v-for="cat in categoryTree"
+            v-for="cat in categories"
             :key="cat.id"
             :category="cat"
             v-model:checkedCategories="selectedCategories"
           />
         </div>
       </div>
+
       <button type="submit" class="btn btn-success">Add Product</button>
     </form>
     <p v-if="message" class="message">{{ message }}</p>
@@ -43,74 +82,93 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { useDataStore } from '../stores/dataStore';
-import type { Product, Category } from '../stores/dataStore';
+import { ref, computed, onMounted } from 'vue';
+import { useProductStore } from '@/stores/product';
+import { useCategoryStore } from '@/stores/category';
+import type { Category } from '@/types/category';
 import CategoryCheckbox from './CategoryCheckbox.vue';
 
-interface CategoryNode extends Category {
-  children?: CategoryNode[];
-}
-
-const store = useDataStore();
+const categoryStore = useCategoryStore();
+const productStore = useProductStore();
 
 const name = ref<string>('');
 const description = ref<string>('');
 const price = ref<string>('');
-const image = ref<string>(''); // Holds the image data URL
-const selectedCategories = ref<number[]>([]);
+const uploadMethod = ref<'file' | 'url'>('file');
+const imageFile = ref<File | null>(null);
+const imageUrl = ref<string>('');
+
+// Selected categories (assuming category IDs are strings)
+const selectedCategories = ref<string[]>([]);
 const message = ref<string>('');
 
-const categories = computed<Category[]>(() => store.categories);
+// Get the categories from the category store
+const categories = computed<Category[]>(() => categoryStore.categories);
 
-function buildCategoryTree(categories: Category[], parentId: number | null = null): CategoryNode[] {
-  return categories
-    .filter(cat => cat.parentId === parentId)
-    .map(cat => ({
-      ...cat,
-      children: buildCategoryTree(categories, cat.id),
-    }));
-}
+// Compute a preview URL for the image if a file is chosen
+const imagePreview = computed(() => {
+  if (uploadMethod.value === 'file' && imageFile.value) {
+    return URL.createObjectURL(imageFile.value);
+  } else if (uploadMethod.value === 'url') {
+    return imageUrl.value;
+  }
+  return '';
+});
 
-const categoryTree = computed<CategoryNode[]>(() => buildCategoryTree(categories.value));
-
-function handleImageUpload(event: Event): void {
+// Handle file input change by storing the File object
+function handleFileUpload(event: Event): void {
   const target = event.target as HTMLInputElement;
   if (target.files && target.files[0]) {
-    const file = target.files[0];
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      image.value = e.target?.result as string;
-    };
-    reader.readAsDataURL(file);
+    imageFile.value = target.files[0];
   }
 }
 
-function removeImage(): void {
-  image.value = '';
-  // Optionally, you might also clear the file input value:
-  const fileInput = document.getElementById('image') as HTMLInputElement;
+function removeFile(): void {
+  imageFile.value = null;
+  const fileInput = document.getElementById('fileInput') as HTMLInputElement;
   if (fileInput) {
     fileInput.value = '';
   }
 }
 
-function handleSubmit(): void {
+function removeUrl(): void {
+  imageUrl.value = '';
+  const urlInput = document.getElementById('urlInput') as HTMLInputElement;
+  if (urlInput) {
+    urlInput.value = '';
+  }
+}
+
+// Handle form submission: set the image field based on the selected upload method
+async function handleSubmit(): Promise<void> {
+  let imageData: string | File | undefined = undefined;
+
+  if (uploadMethod.value === 'file' && imageFile.value) {
+    imageData = imageFile.value;
+  } else if (uploadMethod.value === 'url' && imageUrl.value) {
+    imageData = imageUrl.value;
+  }
+  
   const newProduct = {
     name: name.value,
     description: description.value,
     price: parseFloat(price.value),
-    image: image.value,
+    image: imageData,
     categories: selectedCategories.value,
   };
-  store.addProduct(newProduct);
-  message.value = `Product "${name.value}" added successfully.`;
+  productStore.addProduct(newProduct);
+  // Clear the form
   name.value = '';
   description.value = '';
   price.value = '';
-  image.value = '';
+  imageFile.value = null;
+  imageUrl.value = '';
   selectedCategories.value = [];
 }
+
+onMounted(() => {
+  categoryStore.fetchCategories();
+});
 </script>
 
 <style scoped>
@@ -160,6 +218,11 @@ function handleSubmit(): void {
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
+.radio-group {
+  display: flex;
+  gap: 1rem;
+}
+
 .file-upload {
   position: relative;
   border: 1px dashed #E5E7EB;
@@ -188,6 +251,10 @@ function handleSubmit(): void {
   font-size: 0.875rem;
   color: #6B7280;
   font-family: 'Poppins', sans-serif;
+}
+
+.url-upload {
+  text-align: center;
 }
 
 .image-preview-container {
@@ -249,5 +316,8 @@ function handleSubmit(): void {
   margin-top: 1rem;
   color: green;
   font-family: 'Poppins', sans-serif;
+}
+.url-upload{
+  width: 100%;
 }
 </style>

@@ -24,7 +24,7 @@
 <script setup lang="ts">
 import { ref, computed , onMounted } from 'vue';
 import { useDataStore } from '../stores/dataStore';
-import type { Category } from '@/types/Category';
+import type { Category } from '@/types/category';
 import { useCategoryStore } from '@/stores/category';
 
 const store = useDataStore();

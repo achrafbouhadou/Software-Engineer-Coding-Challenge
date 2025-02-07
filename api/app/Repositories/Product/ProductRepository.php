@@ -10,6 +10,10 @@ class ProductRepository implements ProductRepositoryInterface {
     {
         $product = Product::create($data);
 
+        if (isset($data['categories'])) {
+            $product->categories()->sync($data['categories']);
+        }
+
         return new ProductResource($product);
     }
 
