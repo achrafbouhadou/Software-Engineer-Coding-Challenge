@@ -20,7 +20,6 @@ class ProductRepository implements ProductRepositoryInterface {
     public function list(array $filters = [], array $sort = []) 
     {
         $query = Product::query();
-
         // Filtering by category name
         if (!empty($filters['category'])) {
             $query->whereHas('categories', function ($q) use ($filters) {

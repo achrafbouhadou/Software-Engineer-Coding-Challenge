@@ -8,9 +8,9 @@
         <div class="select-wrapper">
           <select id="categoryFilter" v-model="selectedCategory" class="custom-select">
             <option value="">All</option>
-            <option v-for="category in categories" :key="category.id" :value="category.id">
+            <!-- <option v-for="category in categories" :key="category.id" :value="category.id">
               {{ category.name }}
-            </option>
+            </option> -->
           </select>
         </div>
       </div>
@@ -27,17 +27,17 @@
     </div>
 
     <div class="products-grid">
-      <div v-for="product in sortedFilteredProducts" :key="product.id" class="product-card">
+      <div v-for="product in products" :key="product.id" class="product-card">
         <div class="product-image">
-          <img :src="product.image" alt="Product Image" />
+          <img :src="product.image || defaultImage" alt="Product Image" />
         </div>
         <div class="product-content">
           <h3 class="product-title">{{ product.name }}</h3>
           <p class="product-description">{{ product.description }}</p>
-          <p class="product-price">${{ product.price.toLocaleString() }}</p>
+          <p class="product-price">${{ product.price }}</p>
           <div class="product-categories">
-            <span v-for="catId in product.categories" :key="catId" class="category-tag">
-              {{ getCategoryName(catId) }}
+            <span v-for="cat in product.categories" :key="cat.id" class="category-tag">
+              {{ cat.name }}
             </span>
           </div>
         </div>
@@ -47,37 +47,23 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { useDataStore } from '../stores/dataStore';
-import type { Product, Category } from '../stores/dataStore';
+import { ref, computed , onMounted } from 'vue';
+import { useProductStore } from '../stores/product';
+import type { Product } from '../types/product';
 
-const store = useDataStore();
+const productStore = useProductStore();
 
-const selectedCategory = ref<string | number>('');
+const selectedCategory = ref<string>('');
 const sortOrder = ref<'asc' | 'desc'>('asc');
 
-const categories = computed<Category[]>(() => store.categories);
-const products = computed<Product[]>(() => store.products);
+const defaultImage = 'https://img.freepik.com/premium-vector/default-image-icon-vector-missing-picture-page-website-design-mobile-app-no-photo-available_87543-11093.jpg';
 
-const sortedFilteredProducts = computed<Product[]>(() => {
-  let filtered = products.value;
-  if (selectedCategory.value !== '') {
-    const catId =
-      typeof selectedCategory.value === 'number'
-        ? selectedCategory.value
-        : parseInt(selectedCategory.value as string);
-    filtered = filtered.filter(product => product.categories.includes(catId));
-  }
-  filtered = filtered.slice().sort((a, b) => {
-    return sortOrder.value === 'asc' ? a.price - b.price : b.price - a.price;
-  });
-  return filtered;
+const products = computed<Product[]>(() => productStore.products);
+
+
+onMounted(() => {
+  productStore.fetchProducts();
 });
-
-function getCategoryName(catId: number): string {
-  const category = store.categories.find(cat => cat.id === catId);
-  return category ? category.name : '';
-}
 </script>
 
 <style scoped>

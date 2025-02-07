@@ -11,6 +11,8 @@ class Product extends Model
     public $incrementing = false; 
     protected $keyType = 'string'; 
 
+    protected $with = ['categories'];
+
     protected $casts = [
         'id' => 'string',
         'price' => 'float',

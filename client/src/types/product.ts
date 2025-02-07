@@ -1,3 +1,4 @@
+import type { Category } from './category';
 export interface ProductPayload {
   name: string;
   description: string;
@@ -11,7 +12,7 @@ export interface Product {
   description: string;
   price: number;
   image?: string;
-  categories: string[];
+  categories: Category[];
   created_at: Date;
   updated_at: Date;
 }
