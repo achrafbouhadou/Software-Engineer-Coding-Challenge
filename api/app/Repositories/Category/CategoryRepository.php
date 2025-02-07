@@ -25,4 +25,10 @@ class CategoryRepository implements CategoryRepositoryInterface {
         return CategoryResource::collection($categories);
     }
 
+    public function findOrCreateByName(string $name) : CategoryResource
+    {
+        $category = Category::firstOrCreate(['name' => $name]);
+        return new CategoryResource($category);
+    }
+
 }

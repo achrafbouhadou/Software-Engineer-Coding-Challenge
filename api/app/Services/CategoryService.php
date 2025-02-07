@@ -19,6 +19,10 @@ class CategoryService {
     {
         return $this->repository->create($data);
     }
+    public function findOrCreateByName(string $name) 
+    {
+        return $this->repository->findOrCreateByName($name);
+    }
 
     public function list(string $name = null)
     {
