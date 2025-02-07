@@ -1,0 +1,68 @@
+[90m= [39m[34;4mIlluminate\Database\Eloquent\Collection[39;24m {#5209
+    [34mall[39m: [
+      [34;4mApp\Models\Category[39;24m {#6196
+        [34mid[39m: "[32m15887767-6290-4c8d-922c-7a7c4aeef9d3[39m",
+        [34mparent_id[39m: [36mnull[39m,
+        [34mname[39m: "[32m4 category child[39m",
+        [34mcreated_at[39m: "[32m2025-02-07 00:13:31[39m",
+        [34mupdated_at[39m: "[32m2025-02-07 00:13:31[39m",
+      },
+      [34;4mApp\Models\Category[39;24m {#6197
+        [34mid[39m: "[32m26709bfe-e2b4-4f0b-b21a-3bb79faff495[39m",
+        [34mparent_id[39m: [36mnull[39m,
+        [34mname[39m: "[32m3 Category child[39m",
+        [34mcreated_at[39m: "[32m2025-02-07 00:13:20[39m",
+        [34mupdated_at[39m: "[32m2025-02-07 00:13:20[39m",
+      },
+      [34;4mApp\Models\Category[39;24m {#6198
+        [34mid[39m: "[32m2a46b0a3-c253-47bd-b53c-be49eb5d3f02[39m",
+        [34mparent_id[39m: [36mnull[39m,
+        [34mname[39m: "[32m3 category[39m",
+        [34mcreated_at[39m: "[32m2025-02-06 23:46:59[39m",
+        [34mupdated_at[39m: "[32m2025-02-06 23:46:59[39m",
+      },
+      [34;4mApp\Models\Category[39;24m {#6199
+        [34mid[39m: "[32m7081bee9-ce90-4286-96d4-76b11a122e79[39m",
+        [34mparent_id[39m: [36mnull[39m,
+        [34mname[39m: "[32m6 category[39m",
+        [34mcreated_at[39m: "[32m2025-02-06 23:51:34[39m",
+        [34mupdated_at[39m: "[32m2025-02-06 23:51:34[39m",
+      },
+      [34;4mApp\Models\Category[39;24m {#6200
+        [34mid[39m: "[32m8c63c0dc-d011-4e05-8a55-87c737bf2c36[39m",
+        [34mparent_id[39m: [36mnull[39m,
+        [34mname[39m: "[32m4 Category[39m",
+        [34mcreated_at[39m: "[32m2025-02-06 23:48:05[39m",
+        [34mupdated_at[39m: "[32m2025-02-06 23:48:05[39m",
+      },
+      [34;4mApp\Models\Category[39;24m {#6201
+        [34mid[39m: "[32m8e0e028c-4bd3-4bde-972d-270386a78dd0[39m",
+        [34mparent_id[39m: [36mnull[39m,
+        [34mname[39m: "[32mFirst Category[39m",
+        [34mcreated_at[39m: "[32m2025-02-06 23:41:59[39m",
+        [34mupdated_at[39m: "[32m2025-02-06 23:41:59[39m",
+      },
+      [34;4mApp\Models\Category[39;24m {#6202
+        [34mid[39m: "[32mb87a441f-b56c-42b5-9c45-5fb8500ec3f2[39m",
+        [34mparent_id[39m: [36mnull[39m,
+        [34mname[39m: "[32mSecond Category[39m",
+        [34mcreated_at[39m: "[32m2025-02-06 23:46:14[39m",
+        [34mupdated_at[39m: "[32m2025-02-06 23:46:14[39m",
+      },
+      [34;4mApp\Models\Category[39;24m {#6203
+        [34mid[39m: "[32md9c1480f-5301-400e-aaef-09ce3fd666be[39m",
+        [34mparent_id[39m: [36mnull[39m,
+        [34mname[39m: "[32msecond category child[39m",
+        [34mcreated_at[39m: "[32m2025-02-07 00:13:51[39m",
+        [34mupdated_at[39m: "[32m2025-02-07 00:13:51[39m",
+      },
+      [34;4mApp\Models\Category[39;24m {#6204
+        [34mid[39m: "[32me64300a9-80f6-4db8-b05c-73da53a61259[39m",
+        [34mparent_id[39m: [36mnull[39m,
+        [34mname[39m: "[32m5 Category[39m",
+        [34mcreated_at[39m: "[32m2025-02-06 23:49:05[39m",
+        [34mupdated_at[39m: "[32m2025-02-06 23:49:05[39m",
+      },
+    ],
+  }
+
