@@ -38,7 +38,7 @@ class ProductRepositoryTest extends TestCase
         $data = [
             'id'          => (string) Str::uuid(),
             'name'        => 'Test Product',
-            'description' => 'Description of test product',
+            'description' => 'Description of test product ',
             'price'       => 100.00,
             'image'       => 'https://banner2.cleanpng.com/20180417/xve/avfo64zl4.webp',
         ];
