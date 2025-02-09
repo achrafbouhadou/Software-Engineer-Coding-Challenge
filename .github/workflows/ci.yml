@@ -56,7 +56,7 @@ jobs:
         run: ./vendor/bin/sail artisan migrate --force
 
       - name: Run PHPUnit Tests
-        run: ./vendor/bin/sail test --verbose
+        run: ./vendor/bin/sail test 
 
       - name: Shutdown Containers
         if: always()
