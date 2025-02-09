@@ -27,7 +27,7 @@ class ProductRepository implements ProductRepositoryInterface {
         $version = $this->cacheService->getCacheVersion('product_cache_version');
         $cacheKey = $this->generateCacheKey($filters, $sort , $version);
         return $this->cacheService->remember($cacheKey,  function () use ($filters, $sort) {
-            $query = Product::query();
+            $query = Product::with('categories');
             // Filtering by category name
             if (!empty($filters['category'])) {
                 $query->whereHas('categories', function ($q) use ($filters) {
