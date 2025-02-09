@@ -16,15 +16,26 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Install Docker Compose V1
+      - name: Install System Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y docker-compose
+          # Install composer & docker-compose
+          sudo apt-get install -y composer docker-compose
 
-      - name: Check Docker Versions
+      - name: Check Installed Versions
         run: |
+          composer --version
           docker --version
           docker-compose --version
+
+      - name: Copy .env File
+        run: cp .env.example .env
+
+      - name: Install Docker Dependencies
+        run: composer install --no-progress --no-suggest --prefer-dist
+
+      - name: Copy .env File
+        run: cp .env.example .env
 
       - name: Build and Start Sail Containers
         run: docker-compose up -d
