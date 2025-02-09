@@ -1,0 +1,47 @@
+name: API CI with Sail
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  api-tests:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Check Docker Versions
+        run: |
+          docker --version
+          docker-compose --version
+
+      - name: Build and Start Sail Containers
+        run: docker-compose up -d
+
+      - name: Wait for MySQL Service
+        run: |
+          for i in {1..30}; do
+            if docker exec $(docker-compose ps -q mysql) mysqladmin ping -h "127.0.0.1" --silent; then
+              echo "MySQL is up!";
+              exit 0;
+            fi;
+            sleep 2;
+          done;
+          echo "MySQL did not start in time." >&2;
+          exit 1
+
+      - name: Run Migrations
+        run: docker-compose exec laravel.test php artisan migrate --force
+
+      - name: Run PHPUnit Tests
+        run: docker-compose exec laravel.test vendor/bin/phpunit --verbose
+
+      - name: Shutdown Containers
+        if: always()
+        run: docker-compose down
