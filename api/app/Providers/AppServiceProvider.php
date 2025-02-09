@@ -15,6 +15,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+
         $this->app->bind(
             \App\Repositories\Product\ProductRepositoryInterface::class,
             \App\Repositories\Product\ProductRepository::class
@@ -31,7 +32,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        if (app()->runningInConsole()) {
+            return;
+        }
         Category::observe(CategoryObserver::class);
         Product::observe(ProductObserver::class);
+
     }
 }

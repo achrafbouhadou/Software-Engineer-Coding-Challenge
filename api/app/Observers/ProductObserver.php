@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Models\Product;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 class ProductObserver
@@ -19,7 +20,7 @@ class ProductObserver
      */
     public function created(Product $product): void
     {
-        //
+        Cache::increment('product_cache_version');
     }
 
     /**
@@ -27,7 +28,7 @@ class ProductObserver
      */
     public function updated(Product $product): void
     {
-        //
+        Cache::increment('product_cache_version');
     }
 
     /**
@@ -35,7 +36,7 @@ class ProductObserver
      */
     public function deleted(Product $product): void
     {
-        //
+        Cache::increment('product_cache_version');
     }
 
     /**
@@ -43,7 +44,7 @@ class ProductObserver
      */
     public function restored(Product $product): void
     {
-        //
+        Cache::increment('product_cache_version');
     }
 
     /**
@@ -51,6 +52,6 @@ class ProductObserver
      */
     public function forceDeleted(Product $product): void
     {
-        //
+        Cache::increment('product_cache_version');
     }
 }

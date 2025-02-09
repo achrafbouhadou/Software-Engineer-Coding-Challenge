@@ -17,7 +17,7 @@ class ProductRequest extends FormRequest
             'name'        => 'required|string|max:255',
             'description' => 'nullable|string',
             'price'       => 'required|numeric|min:0',
-            'image'       => ['nullable', 'string', 'max:2048', 'regex:/^(https?:\/\/.*\.(?:png|jpg|jpeg))$/i'],
+            'image'       => ['nullable', 'string', 'max:2048', 'regex:/^(https?:\/\/.*\.(?:png|jpg|jpeg|webp))$/i'],
             'image_file'  => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'categories'  => 'nullable|array',
             'categories.*'=> 'exists:categories,id',
