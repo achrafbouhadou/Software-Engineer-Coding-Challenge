@@ -38,7 +38,7 @@ jobs:
         run: cp .env.example .env
 
       - name: Build and Start Sail Containers
-        run: docker-compose up -d
+        run: ./vendor/bin/sail up -d
 
       - name: Wait for MySQL Service
         run: |
@@ -53,11 +53,11 @@ jobs:
           exit 1
 
       - name: Run Migrations
-        run: docker-compose exec laravel.test php artisan migrate --force
+        run: ./vendor/bin/sail artisan migrate --force
 
       - name: Run PHPUnit Tests
-        run: docker-compose exec laravel.test vendor/bin/phpunit --verbose
+        run: ./vendor/bin/sail test --verbose
 
       - name: Shutdown Containers
         if: always()
-        run: docker-compose down
+        run: ./vendor/bin/sail down
