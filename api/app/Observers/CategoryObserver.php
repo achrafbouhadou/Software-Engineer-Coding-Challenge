@@ -4,6 +4,7 @@ namespace App\Observers;
 
 use App\Models\Category;
 use Exception;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 class CategoryObserver
@@ -26,7 +27,7 @@ class CategoryObserver
      */
     public function created(Category $category): void
     {
-        //
+        Cache::increment('category_cache_version');
     }
 
     public function updating(Category $category)
@@ -44,7 +45,7 @@ class CategoryObserver
      */
     public function updated(Category $category): void
     {
-        //
+        Cache::increment('category_cache_version');
     }
 
     /**
@@ -52,7 +53,7 @@ class CategoryObserver
      */
     public function deleted(Category $category): void
     {
-        //
+        Cache::increment('category_cache_version');
     }
 
     /**
@@ -60,7 +61,7 @@ class CategoryObserver
      */
     public function restored(Category $category): void
     {
-        //
+        Cache::increment('category_cache_version');
     }
 
     /**
@@ -68,6 +69,6 @@ class CategoryObserver
      */
     public function forceDeleted(Category $category): void
     {
-        //
+        Cache::increment('category_cache_version');
     }
 }

@@ -6,8 +6,11 @@ namespace App\Repositories\Category;
 use App\Models\Category;
 use App\Repositories\Category\CategoryRepositoryInterface;
 use App\Http\Resources\CategoryResource;
+use App\Services\CacheService;
 
 class CategoryRepository implements CategoryRepositoryInterface {
+
+    public function __construct(protected CacheService $cacheService) {}
 
     public function create(array $data) : CategoryResource
     {
@@ -18,17 +21,28 @@ class CategoryRepository implements CategoryRepositoryInterface {
 
     public function list(string $name = null)
     {
-        $categories = Category::with('children')->whereNull('parent_id')->when($name, function ($query) use ($name) {
-            $query->where('name', 'like', "%$name%");
-        })->take(5)->get();
-
-        return CategoryResource::collection($categories);
+        $version = $this->cacheService->getCacheVersion('category_cache_version');
+        $cacheKey = $this->generateCacheKey($name, $version);
+        return $this->cacheService->remember($cacheKey,  function () use ($name) {
+            $categories = Category::with('children')->whereNull('parent_id')->when($name, function ($query) use ($name) {
+                $query->where('name', 'like', "%$name%");
+            })->take(5)->get();
+    
+            return CategoryResource::collection($categories);
+        });
+        
     }
 
     public function findOrCreateByName(string $name) : CategoryResource
     {
         $category = Category::firstOrCreate(['name' => $name]);
         return new CategoryResource($category);
+    }
+
+    protected function generateCacheKey( string $name = null, int $version): string
+    {
+        $prefix = "categories:v{$version}:";
+        return $prefix . $name;
     }
 
 }
