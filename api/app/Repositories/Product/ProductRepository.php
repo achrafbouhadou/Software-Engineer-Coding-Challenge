@@ -27,16 +27,9 @@ class ProductRepository implements ProductRepositoryInterface {
             });
         }
 
-<<<<<<< HEAD
-        if (!empty($sort['price'])) {
-            $query->orderBy('price', $sort['price']);
-        }
-        return ProductResource::collection($query->get());
-=======
         if (!empty($sort['price'])) { 
             $query->orderBy('price', $sort['price']);
         }
         return ProductResource::collection($query->take(10)->get());
->>>>>>> c2c58b7 (Feat : seed a large data)
     }
 }
