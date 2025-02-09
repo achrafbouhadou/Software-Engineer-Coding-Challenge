@@ -20,7 +20,11 @@ class CategoryRepository implements CategoryRepositoryInterface {
     {
         $categories = Category::with('children')->whereNull('parent_id')->when($name, function ($query) use ($name) {
             $query->where('name', 'like', "%$name%");
+<<<<<<< HEAD
         })->get();
+=======
+        })->take(5)->get();
+>>>>>>> c2c58b7 (Feat : seed a large data)
 
         return CategoryResource::collection($categories);
     }

@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use App\Services\ProductService;
 use App\Services\CategoryService;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Str;
 
 class CreateProductCommand extends Command
 {
@@ -27,6 +28,7 @@ class CreateProductCommand extends Command
     public function handle()
     {
         $data = [
+            'id'          => (string) Str::uuid(),
             'name'        => $this->argument('name'),
             'price'       => $this->argument('price'),
             'description' => $this->option('description') ?? '',
