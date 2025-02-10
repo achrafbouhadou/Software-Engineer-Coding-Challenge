@@ -1,7 +1,6 @@
 ## Features & Progress
 
-Below is a checklist mapping to the required features. Feel free to adjust this section to show which parts are done, in progress, or not started:
-
+Below is a checklist mapping to the required features.
 ### Part 1
 - [x] Entities / Models (Product, Category)
 - [x] Create a product from web
