@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CategoryRequest;
 use App\Services\CategoryService;
+use App\Services\ElasticsearchService;
 use App\Traits\Loggable;
 use App\Traits\ResponseTrait;
 use Illuminate\Http\Request;
@@ -16,7 +17,7 @@ class CategoryController
     use Loggable;
 
 
-    public function __construct(protected CategoryService $categoryService)
+    public function __construct(protected CategoryService $categoryService , protected ElasticsearchService  $elasticsearchService)
     {
     }
 
@@ -46,6 +47,35 @@ class CategoryController
             $category = $this->categoryService->create($request->validated());
             $this->logInfo('Category created successfully', ['categoryId' => $category->id]);
             return $this->generateResponse(true,'Category Created Successfully', $category , 200);
+        } catch (Throwable $e) {
+            $this->logError($e->getMessage());
+            return $this->generateResponse(false, $e->getMessage(), null, 400);
+        }
+    }
+
+    public function search(Request $request)
+    {
+        try{
+            $query = $request->input('q');
+            $results = $this->elasticsearchService->searchCategories($query);
+            $data = [
+               'hits' => $results['hits']['hits'],
+               'suggestions' => $results['suggest']['name_suggestion'][0]['options']
+            ];
+            return $this->generateResponse(true, '', $data, 200);
+        }catch(Throwable $e){
+            $this->logError($e->getMessage());
+            return $this->generateResponse(false, $e->getMessage(), null, 400);
+        }
+        
+    }
+
+    public function autocomplete(Request $request)
+    {
+      try {
+            $query = $request->input('q');
+            $results = $this->elasticsearchService->searchCategories($query, 5);
+            return $this->generateResponse(true, '', $results['suggest']['name_suggestion'][0]['options'], 200);
         } catch (Throwable $e) {
             $this->logError($e->getMessage());
             return $this->generateResponse(false, $e->getMessage(), null, 400);

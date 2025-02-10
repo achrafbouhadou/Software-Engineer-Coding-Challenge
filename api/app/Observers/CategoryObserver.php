@@ -3,12 +3,19 @@
 namespace App\Observers;
 
 use App\Models\Category;
+use App\Services\ElasticsearchService;
 use Exception;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 class CategoryObserver
 {
+
+    public function __construct(protected ElasticsearchService $elasticsearchService)
+    {
+        //
+    }
+
     public function creating(Category $category)
     {
         if (empty($category->id)) {
@@ -27,6 +34,8 @@ class CategoryObserver
      */
     public function created(Category $category): void
     {
+        info("Category created: " , [$category]);
+        $this->elasticsearchService->indexCategory($category);
         Cache::increment('category_cache_version');
     }
 
@@ -53,6 +62,11 @@ class CategoryObserver
      */
     public function deleted(Category $category): void
     {
+        $params = [
+            'index' => 'categories',
+            'id' => $category->id
+        ];
+        $this->elasticsearchService->getClient()->delete($params);
         Cache::increment('category_cache_version');
     }
 

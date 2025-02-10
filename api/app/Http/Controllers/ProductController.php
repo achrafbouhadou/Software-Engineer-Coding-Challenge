@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Services\ProductService;
 use App\Http\Requests\ProductRequest;
+use App\Services\ElasticsearchService;
 use App\Traits\Loggable;
 use Illuminate\Routing\Controller;
 use App\Traits\ResponseTrait;
@@ -19,7 +20,7 @@ class ProductController extends Controller
     use Loggable;
 
 
-    public function __construct(protected ProductService $productService)
+    public function __construct(protected ProductService $productService , protected ElasticsearchService  $elasticsearchService)
     {
     }
 
@@ -64,5 +65,42 @@ class ProductController extends Controller
             DB::rollBack();
             return $this->generateResponse(false, $e->getMessage(), null, 400);
          }
+    }
+
+    public function search(Request $request)
+    {
+        try{
+            $query = $request->input('q');
+            $validator = Validator::make($request->query(), [
+               'q' => 'required|string'
+            ]);
+            if ($validator->fails()) {
+               $this->logError($validator->errors()->first());
+               return $this->generateResponse(false, $validator->errors()->first(), [], 422);
+            }
+            info('Searching products for: ' . $query);
+            $results = $this->elasticsearchService->searchProducts($query);
+            $data = [
+               'hits' => $results['hits']['hits'],
+               'suggestions' => $results['suggest']['name_suggestion'][0]['options']
+            ];
+            return $this->generateResponse(true, '', $data, 200);
+        }catch(Throwable $e){
+            $this->logError($e->getMessage());
+            return $this->generateResponse(false, $e->getMessage(), null, 400);
+        }
+        
+    }
+
+    public function autocomplete(Request $request)
+    {
+      try {
+            $query = $request->input('q');
+            $results = $this->elasticsearchService->searchProducts($query, 5);
+            return $this->generateResponse(true, '', $results['suggest']['name_suggestion'][0]['options'], 200);
+        } catch (Throwable $e) {
+            $this->logError($e->getMessage());
+            return $this->generateResponse(false, $e->getMessage(), null, 400);
+        }
     }
 }
