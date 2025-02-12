@@ -124,7 +124,7 @@ This repository contains the source code for the Software Engineer Coding Challe
 You can create a product via the web interface or the CLI. To create a product from the command line (within the Sail environment), run:
 
 ```bash
-php artisan product:create "Awesome Product" 29.99 \
+./vendor/bin/sail artisan product:create "Awesome Product" 29.99 \
     --description="A high-quality, awesome product" \
     --image="https://example.com/images/awesome-product.jpg" \
     --categories="Electronics" \
