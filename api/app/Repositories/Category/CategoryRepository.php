@@ -7,20 +7,25 @@ use App\Models\Category;
 use App\Repositories\Category\CategoryRepositoryInterface;
 use App\Http\Resources\CategoryResource;
 use App\Services\CacheService;
+use Illuminate\Support\Facades\Cache;
 
 class CategoryRepository implements CategoryRepositoryInterface {
 
-    public function __construct(protected CacheService $cacheService) {}
+    public function __construct(protected CacheService $cacheService) {
+    }
 
     public function create(array $data) : CategoryResource
     {
         $category = Category::create($data);
+        Cache::increment('category_cache_version');
 
         return new CategoryResource($category);
     }
 
     public function list(string $name = null)
     {
+        info($this->cacheService->getCacheVersion('category_cache_version'));
+
         $version = $this->cacheService->getCacheVersion('category_cache_version');
         $cacheKey = $this->generateCacheKey($name, $version);
         return $this->cacheService->remember($cacheKey,  function () use ($name) {
@@ -42,6 +47,7 @@ class CategoryRepository implements CategoryRepositoryInterface {
     protected function generateCacheKey( string $name = null, int $version): string
     {
         $prefix = "categories:v{$version}:";
+        info($prefix . $name);
         return $prefix . $name;
     }
 

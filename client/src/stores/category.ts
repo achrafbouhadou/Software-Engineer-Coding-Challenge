@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { createCategory, getCategories } from '@/services/categoryService';
+import { createCategory, getCategories , searchCategories as searchCategoriesService } from '@/services/categoryService';
 import type { Category ,CategoryPayload } from '@/types/category';
 
 
@@ -33,6 +33,21 @@ export const useCategoryStore = defineStore('category', {
         this.categories = data;
       } catch (error) {
         console.error('Error fetching categories', error);
+      }
+    },
+    async searchCategories(query: string): Promise<void> {
+      try {
+        const response = await searchCategoriesService(query);
+        
+        const hits = response.data.hits;
+        this.categories = hits.map((hit: any) => {
+          return {
+            id: hit._id,
+            ...hit._source,
+          } as Category;
+        });
+      } catch (error) {
+        console.error('Error searching categories', error);
       }
     },
   },

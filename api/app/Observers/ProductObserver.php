@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Models\Product;
+use App\Services\CacheService;
 use App\Services\ElasticsearchService;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
@@ -10,7 +11,7 @@ use Illuminate\Support\Str;
 class ProductObserver
 {
 
-    public function __construct(protected ElasticsearchService $elasticsearchService)
+    public function __construct(protected ElasticsearchService $elasticsearchService , protected CacheService $cacheService)
     {
         //
     }
@@ -20,14 +21,16 @@ class ProductObserver
         if (empty($product->id)) {
             $product->id = (string) Str::uuid();
         }
+        $this->cacheService->incrementCacheVersion('product_cache_version');
+
     }
     /**
      * Handle the Product "created" event.
      */
     public function created(Product $product): void
     {
+
         $this->elasticsearchService->indexProduct($product);
-        Cache::increment('product_cache_version');
     }
 
     /**
@@ -35,7 +38,7 @@ class ProductObserver
      */
     public function updated(Product $product): void
     {
-        Cache::increment('product_cache_version');
+        $this->cacheService->incrementCacheVersion('product_cache_version');
     }
 
     /**
@@ -48,7 +51,7 @@ class ProductObserver
             'id' => $product->id
         ];
         $this->elasticsearchService->getClient()->delete($params);
-        Cache::increment('product_cache_version');
+        $this->cacheService->incrementCacheVersion('product_cache_version');
     }
 
     /**
@@ -56,7 +59,7 @@ class ProductObserver
      */
     public function restored(Product $product): void
     {
-        Cache::increment('product_cache_version');
+        $this->cacheService->incrementCacheVersion('product_cache_version');  
     }
 
     /**
@@ -64,6 +67,6 @@ class ProductObserver
      */
     public function forceDeleted(Product $product): void
     {
-        Cache::increment('product_cache_version');
+        $this->cacheService->incrementCacheVersion('product_cache_version');
     }
 }

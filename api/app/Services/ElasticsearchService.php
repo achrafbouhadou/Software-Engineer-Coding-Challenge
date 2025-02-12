@@ -67,16 +67,17 @@ class ElasticsearchService
      */
     public function indexProduct($product)
     {
+        $name = (string) $product->name;
         $body = [
-            'name' => $product->name,
+            'name' => $name,
             'description' => $product->description,
             'price' => $product->price,
             'categories' => $product->categories->pluck('name')->toArray()
         ];
 
-        if (str_word_count($product->name) > 1) {
+        if (str_word_count($name) > 1) {
             $body['name_suggest'] = [
-                'input' => $this->generateSuggestions($product->name)
+                'input' => $this->generateSuggestions($name)
             ];
         }
 
@@ -85,7 +86,7 @@ class ElasticsearchService
             'id' => $product->id,
             'body' => $body
         ];
-
+        
         return $this->client->index($params);
     }
 
@@ -104,9 +105,8 @@ class ElasticsearchService
                 $suggestions[] = trim($suggestion);
             }
         }
-        info('Generated suggestions: ' . implode(', ', $suggestions));
         
-        return array_unique($suggestions);
+        return array_values(array_unique($suggestions));
     }
 
     /**
@@ -114,6 +114,7 @@ class ElasticsearchService
      */
     public function searchProducts($query, $size = 10)
     {
+
         $params = [
             'index' => 'products',
             'body' => [
@@ -155,6 +156,7 @@ class ElasticsearchService
             ]
         ];
 
+
         return $this->client->search($params);
     }
 
@@ -190,13 +192,14 @@ class ElasticsearchService
 
     public function indexCategory($category)
     {
+        $name = (string) $category->name;
         $body = [
-            'name' => $category->name,
+            'name' => $name,
         ];
 
         if (str_word_count($category->name) > 1) {
             $body['name_suggest'] = [
-                'input' => $this->generateSuggestions($category->name)
+                'input' => $this->generateSuggestions($name)
             ];
         }
 
@@ -232,7 +235,7 @@ class ElasticsearchService
                     'name_suggestion' => [
                         'prefix' => $query,
                         'completion' => [
-                            'field' => 'name.suggest',
+                            'field' => 'name_suggest',
                             'size' => 5,
                             'fuzzy' => [
                                 'fuzziness' => 1

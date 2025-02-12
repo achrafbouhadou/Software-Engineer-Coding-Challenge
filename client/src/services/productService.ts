@@ -46,3 +46,14 @@ export const getProducts = async (
     throw error;
   }
 };
+
+export const searchProducts = async (query: string): Promise<any> => {
+  try {
+    const response = await axiosClient.get('api/v1/products/search', {
+      params: { q: query },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

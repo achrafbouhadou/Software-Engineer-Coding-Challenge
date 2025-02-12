@@ -1,24 +1,35 @@
 <template>
   <div class="product-list">
     <h2 class="text-2xl font-poppins font-semibold mb-8">Product List</h2>
+
+    <div class="search-container mb-6">
+      <input
+        type="text"
+        v-model="searchQuery"
+        @input="handleSearch"
+        placeholder="Search products or category..."
+        class="search-input"
+      />
+    </div>
     
     <div class="filter-container">
+      <!-- Category Filter Group -->
       <div class="filter-group">
-        <label class="filter-label" for="categoryFilter">Filter by Category</label>
-        <div class="select-wrapper">
-          <select id="categoryFilter" v-model="selectedCategory" @change="applyFilter()" class="custom-select">
-            <option value="">All</option>
-            <option v-for="category in formattedCategories" :key="category.id" :value="category.id">
-              {{ category.name }}
-            </option>
-          </select>
+        <div class="filter-group">
+          <label class="filter-label">Filter by Category</label>
+            <CategoryFilter
+              v-model="selectedCategory"
+              :categories="formattedCategories"
+              @change="applyFilter"
+            />
         </div>
+
       </div>
 
       <div class="filter-group">
         <label class="filter-label" for="sortOrder">Sort by Price</label>
         <div class="select-wrapper">
-          <select id="sortOrder" v-model="sortOrder" @change="applyFilter()" class="custom-select">  
+          <select id="sortOrder" v-model="sortOrder" @change="applyFilter" class="custom-select">  
             <option value="asc">Ascending</option>
             <option value="desc">Descending</option>
           </select>
@@ -47,29 +58,34 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed , onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useProductStore } from '../stores/product';
 import type { Product } from '../types/product';
 import type { Category } from '@/types/category';
 import { useCategoryStore } from '@/stores/category';
+import CategoryFilter from './category/CategoryFilter.vue';
 
 const productStore = useProductStore();
 const categoryStore = useCategoryStore();
 
+// Product search & filter state
 const selectedCategory = ref<string>('');
 const sortOrder = ref<'asc' | 'desc'>('asc');
+const searchQuery = ref<string>('');
+
 
 const defaultImage = 'https://img.freepik.com/premium-vector/default-image-icon-vector-missing-picture-page-website-design-mobile-app-no-photo-available_87543-11093.jpg';
 
 const products = computed<Product[]>(() => productStore.products);
+
 const categories = computed<Category[]>(() => categoryStore.categories);
 const formattedCategories = computed<Category[]>(() => {
   return flattenCategories(categories.value);
 });
 
+// Helper function to flatten nested categories (if applicable)
 function flattenCategories(categories: Category[]): Category[] {
   let flatList: Category[] = [];
-
   categories.forEach(category => {
     flatList.push({
       id: category.id,
@@ -78,20 +94,25 @@ function flattenCategories(categories: Category[]): Category[] {
       created_at: category.created_at,
       updated_at: category.updated_at
     });
-
     if (category.children && category.children.length > 0) {
       flatList = flatList.concat(flattenCategories(category.children));
     }
   });
-
   return flatList;
 }
 
-const  applyFilter = (): void => {
-  console.log('selectedCategory', selectedCategory.value);
-  console.log('sortOrder', sortOrder.value);
+const applyFilter = (): void => {
+  searchQuery.value = '';
   productStore.fetchProducts(sortOrder.value, selectedCategory.value);
-}
+};
+
+const handleSearch = (): void => {
+  if (searchQuery.value.trim() === '') {
+    productStore.fetchProducts(sortOrder.value, selectedCategory.value);
+  } else {
+    productStore.searchProducts(searchQuery.value);
+  }
+};
 
 onMounted(() => {
   productStore.fetchProducts();
@@ -100,11 +121,24 @@ onMounted(() => {
 </script>
 
 <style scoped>
-
 .product-list {
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
+}
+
+.search-container {
+  margin-bottom: 1.5rem;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #E5E7EB;
+  border-radius: 0.5rem;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.875rem;
+  color: #374151;
 }
 
 .filter-container {

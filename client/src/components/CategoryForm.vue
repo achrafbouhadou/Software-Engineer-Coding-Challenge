@@ -8,12 +8,7 @@
       </div>
       <div class="form-group">
         <label for="parent" class="form-label">Parent Category (optional)</label>
-        <select id="parent" v-model="parentId" class="form-select">
-          <option value="">None</option>
-          <option v-for="cat in categories" :key="cat.id" :value="cat.id">
-            {{ cat.name }}
-          </option>
-        </select>
+        <CategoryFilter v-model="parentId" :categories="categories" :isFromProductForm="false" />
       </div>
       <button type="submit" class="btn btn-primary">Add Category</button>
     </form>
@@ -26,6 +21,7 @@ import { ref, computed , onMounted } from 'vue';
 import { useDataStore } from '../stores/dataStore';
 import type { Category } from '@/types/category';
 import { useCategoryStore } from '@/stores/category';
+import CategoryFilter from './category/CategoryFilter.vue';
 
 const categoryStore = useCategoryStore();
 

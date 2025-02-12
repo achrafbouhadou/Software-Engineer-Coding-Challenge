@@ -28,3 +28,13 @@ export const getCategories = async (): Promise<any> => {
     throw error;
   }
 };
+export const searchCategories = async (query: string): Promise<any> => {
+  try {
+    const response = await axiosClient.get('api/v1/categories/search', {
+      params: { q: query },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

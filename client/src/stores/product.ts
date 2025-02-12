@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import type { ProductPayload , Product } from '@/types/product';
-import { createProduct, getProducts } from '@/services/productService';
+import { createProduct, getProducts , searchProducts as searchProductsService } from '@/services/productService';
 
 
 
@@ -29,6 +29,20 @@ export const useProductStore = defineStore('product', {
         this.products = data;
       } catch (error) {
         console.error('Error fetching products', error);
+      }
+    },
+    async searchProducts(query: string): Promise<void> {
+      try {
+        const response = await searchProductsService(query);
+        const hits = response.data.hits;
+        this.products = hits.map((hit: any) => {
+          return {
+            id: hit._id,
+            ...hit._source,
+          } as Product;
+        });
+      } catch (error) {
+        console.error('Error searching products', error);
       }
     },
   },
