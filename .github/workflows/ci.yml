@@ -1,4 +1,4 @@
-name: API CI with Sail
+name: API CI with Docker Compose
 
 on:
   push:
@@ -9,55 +9,31 @@ on:
 jobs:
   api-tests:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: api
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Install System Dependencies
-        run: |
-          sudo apt-get update
-          # Install composer & docker-compose
-          sudo apt-get install -y composer docker-compose
+      - name: Verify Docker Compose Version
+        run: docker-compose version
 
-      - name: Check Installed Versions
-        run: |
-          composer --version
-          docker --version
-          docker-compose --version
-
-      - name: Copy .env File
-        run: cp .env.example .env
-
-      - name: Install Docker Dependencies
-        run: composer install --no-progress --no-suggest --prefer-dist
-
-      - name: Copy .env File
-        run: cp .env.example .env
-
-      - name: Build and Start Sail Containers
-        run: ./vendor/bin/sail up -d
+      - name: Build and Start Containers
+        run: docker-compose up -d --build
 
       - name: Wait for MySQL Service
         run: |
           for i in {1..30}; do
-            if docker exec $(docker-compose ps -q mysql) mysqladmin ping -h "127.0.0.1" --silent; then
-              echo "MySQL is up!";
-              exit 0;
-            fi;
-            sleep 2;
-          done;
-          echo "MySQL did not start in time." >&2;
+            if docker exec mysql mysqladmin ping -h "127.0.0.1" --silent; then
+              echo "MySQL is up!"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "MySQL did not start in time." >&2
           exit 1
 
-      - name: Run Migrations
-        run: ./vendor/bin/sail artisan migrate --force
-
       - name: Run PHPUnit Tests
-        run: ./vendor/bin/sail test 
+        run: docker-compose run --rm --entrypoint php api artisan test
 
       - name: Shutdown Containers
         if: always()
-        run: ./vendor/bin/sail down
+        run: docker-compose down
