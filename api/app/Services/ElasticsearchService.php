@@ -2,10 +2,13 @@
 
 namespace App\Services;
 
+use App\Traits\Loggable;
 use Elastic\Elasticsearch\ClientBuilder;
 
 class ElasticsearchService
 {
+    use Loggable;
+
     protected $client;
 
     public function __construct()
@@ -68,6 +71,8 @@ class ElasticsearchService
     public function indexProduct($product)
     {
         $name = (string) $product->name;
+        info([$product]);
+        info([$product->categories->pluck('name')->toArray()]);
         $body = [
             'name' => $name,
             'description' => $product->description,
@@ -122,17 +127,25 @@ class ElasticsearchService
                     'bool' => [
                         'should' => [
                             [
+                                'prefix' => [
+                                    'name' => [
+                                        'value' => strtolower($query), 
+                                        'boost' => 3,
+                                    ]
+                                ]
+                            ],
+                            [
                                 'match' => [
                                     'name' => [
-                                        'query' => $query,
-                                        'boost' => 3
+                                        'query' => strtolower($query),
+                                        'boost' => 2
                                     ]
                                 ]
                             ],
                             [
                                 'match' => [
                                     'description' => [
-                                        'query' => $query,
+                                        'query' => strtolower($query),
                                         'boost' => 1
                                     ]
                                 ]
@@ -216,15 +229,23 @@ class ElasticsearchService
     {
         $params = [
             'index' => 'categories',
-            'body' => [
+            'body'  => [
                 'query' => [
                     'bool' => [
                         'should' => [
                             [
+                                'prefix' => [
+                                    'name' => [
+                                        'value' => strtolower($query), 
+                                        'boost' => 3,
+                                    ]
+                                ]
+                            ],
+                            [
                                 'match' => [
                                     'name' => [
-                                        'query' => $query,
-                                        'boost' => 3
+                                        'query' => strtolower($query),
+                                        'boost' => 2,
                                     ]
                                 ]
                             ]
@@ -246,8 +267,29 @@ class ElasticsearchService
                 'size' => $size
             ]
         ];
-
+    
         return $this->client->search($params);
+    }
+    
+    public function deleteProductIndex()
+    {
+        // Check if the index exists before attempting deletion
+        if ($this->client->indices()->exists(['index' => 'products'])->asBool()) {
+            $this->client->indices()->delete(['index' => 'products']);
+            $this->logInfo('Product index deleted successfully.');
+        } else {
+            $this->logInfo('Product index does not exist.');
+        }
+    }
+
+    public function deleteCategoryIndex()
+    {
+        if ($this->client->indices()->exists(['index' => 'categories'])->asBool()) {
+            $this->client->indices()->delete(['index' => 'categories']);
+            $this->logInfo('Category index deleted successfully.');
+        } else {
+            $this->logInfo('Category index does not exist.');
+        }
     }
 
 

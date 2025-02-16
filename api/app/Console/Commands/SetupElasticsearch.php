@@ -18,6 +18,11 @@ class SetupElasticsearch extends Command
 
     public function handle()
     {
+        $this->info('Deleting existing Elasticsearch indices...');
+        $this->elasticsearchService->deleteProductIndex();
+        $this->info('Product index deleted successfully.');
+        $this->elasticsearchService->deleteCategoryIndex();
+        $this->info('Category index deleted successfully.');
         $this->info('Creating Elasticsearch indices...');
 
         $this->elasticsearchService->createProductIndex();
