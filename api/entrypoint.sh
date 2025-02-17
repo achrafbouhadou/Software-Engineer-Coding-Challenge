@@ -5,6 +5,10 @@ echo "Setting permissions..."
 chmod -R 775 /var/www 
 chown -R www-data:www-data /var/www
 
+echo "Setting Composer cache dir..."
+export COMPOSER_CACHE_DIR=/tmp/composer-cache
+
+
 echo "Running composer install..."
 composer install --no-interaction --prefer-dist --optimize-autoloader
 
