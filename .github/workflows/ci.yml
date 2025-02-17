@@ -32,7 +32,7 @@ jobs:
           exit 1
 
       - name: Run PHPUnit Tests
-        run: docker compose run --rm api php artisan test
+        run: docker compose exec api php artisan test
 
 
       - name: Shutdown Containers
