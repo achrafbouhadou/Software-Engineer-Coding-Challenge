@@ -35,7 +35,7 @@ jobs:
         run: docker compose exec api rm -rf /var/www/vendor
 
       - name: Install Composer Dependencies
-        run: docker compose exec api composer install
+        run: docker compose exec api sh -c 'COMPOSER_MEMORY_LIMIT=-1 composer install'
 
       - name: Run Migrations
         run: docker compose exec api php artisan migrate --force
