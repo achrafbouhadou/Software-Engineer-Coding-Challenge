@@ -31,6 +31,9 @@ jobs:
           echo "MySQL did not start in time." >&2
           exit 1
 
+      - name: Clear Vendor Directory
+        run: docker compose exec api rm -rf /var/www/vendor
+
       - name: Install Composer Dependencies
         run: docker compose exec api composer install
 
