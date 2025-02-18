@@ -4,51 +4,80 @@ on:
   push:
     branches:
       - main
-  pull_request:
 
 defaults:
   run:
     working-directory: api
 
 jobs:
-  api-tests:
+  laravel:
+    name: Laravel (PHP ${{ matrix.php-versions }})
     runs-on: ubuntu-latest
+    env:
+      DB_DATABASE: laravel
+      DB_USERNAME: root
+      DB_PASSWORD: password
+
+    services:
+      mysql:
+        image: mysql:latest
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: "false"
+          MYSQL_ROOT_PASSWORD: password
+          MYSQL_DATABASE: laravel
+        ports:
+          - 3306/tcp
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php-versions: ['8.3']
+
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.3'
-          coverage: none
+          php-version: ${{ matrix.php-versions }}
+          extensions: mbstring, dom, fileinfo, mysql
+          coverage: xdebug
+
+      - name: Get Composer Cache Directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache Composer Dependencies
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
 
       - name: Install Composer Dependencies
-        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+        run: composer install --no-progress --prefer-dist --optimize-autoloader
 
-      - name: Ensure MySQL is installed and running
+      - name: Prepare the Application
         run: |
-          if ! command -v mysql >/dev/null 2>&1; then
-            echo "MySQL not found. Installing MySQL Server..."
-            sudo apt-get update
-            sudo apt-get install -y mysql-server
-          else
-            echo "MySQL is already installed."
-          fi
-          echo "Starting MySQL service..."
-          sudo service mysql start
-          sleep 5
+          php -r "file_exists('.env') || copy('.env.example', '.env');"
+          php artisan key:generate
 
-      - name: Configure MySQL root user (if needed)
-        run: |
-          sudo mysql -u root --password='' -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY ''; FLUSH PRIVILEGES;"
+      - name: Clear Laravel Config Cache
+        run: php artisan config:clear
 
-      - name: Create Test Database
-        run: |
-          sudo mysql -u root --password='' -e "CREATE DATABASE IF NOT EXISTS test_db;"
+      - name: Run Migrations
+        run: php artisan migrate -v
+        env:
+          # Pass the service container ports to Laravel via environment variables
+          DB_PORT: ${{ job.services.mysql.ports['3306'] }}
 
-      - name: Run Laravel Migrations
-        run: php artisan migrate --force
-
-      - name: Run Tests
-        run: ./vendor/bin/phpunit
+      - name: Run Tests with PHPUnit
+        run: vendor/bin/phpunit --coverage-text
+        env:
+          DB_PORT: ${{ job.services.mysql.ports['3306'] }}
