@@ -21,7 +21,6 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
-          # Composer comes pre-installed with this action.
           coverage: none
 
       - name: Install Composer Dependencies
@@ -38,12 +37,15 @@ jobs:
           fi
           echo "Starting MySQL service..."
           sudo service mysql start
-          # Pause briefly to ensure MySQL is ready.
           sleep 5
+
+      - name: Configure MySQL root user (if needed)
+        run: |
+          sudo mysql -u root --password='' -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY ''; FLUSH PRIVILEGES;"
 
       - name: Create Test Database
         run: |
-          sudo mysql -e "CREATE DATABASE IF NOT EXISTS test_db;"
+          sudo mysql -u root --password='' -e "CREATE DATABASE IF NOT EXISTS test_db;"
 
       - name: Run Laravel Migrations
         run: php artisan migrate --force
