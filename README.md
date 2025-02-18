@@ -9,8 +9,8 @@ This repository contains the source code for the Software Engineer Coding Challe
 - [Features & Progress](#features--progress)
 - [Repository Structure](#repository-structure)
 - [Getting Started](#getting-started)
-  - [Backend Setup (API)](#backend-setup-api)
-  - [Frontend Setup (Client)](#frontend-setup-client)
+    - [Prerequisites](prerequisites)
+    - [Installation & Setup](#installation-&-setup)
 - [Usage](#usage)
   - [Creating a Product](#creating-a-product)
   - [Synchronizing with Elasticsearch](#synchronizing-with-elasticsearch)
@@ -58,63 +58,27 @@ This repository contains the source code for the Software Engineer Coding Challe
 
 ## Getting Started
 
-### Backend Setup (API)
+  ### Prerequisites
+  
+  Ensure you have the following installed:
+  
+  * **Docker**: [Get Docker](https://www.docker.com/get-started)
+  * **Docker Compose**: (Comes with Docker Desktop)
+  * **Git** (optional, for cloning the repository)
+  ### Installation & Setup
+  1. **Clone the Repository** (if not already done)
+     
+   ```bash
+   git clone https://github.com/achrafbouhadou/Software-Engineer-Coding-Challenge.git
+   cd Software-Engineer-Coding-Challenge
+  ```
+  2. **Start the Containers**
 
-1. **Navigate to the API directory:**
-
-    ```bash
-    cd api
-    ```
-
-2. **Install PHP dependencies using Composer:**
-
-    ```bash
-    composer install
-    ```
-
-3. **Start Docker containers using Laravel Sail:**
-
-    ```bash
-    ./vendor/bin/sail up -d
-    ```
-
-4. **Run database migrations:**
-
-    ```bash
-    ./vendor/bin/sail artisan migrate
-    ```
-
-5. **Setup Elasticsearch indices:**  
-   Create the necessary Elasticsearch indices for both categories and products by running:
-
-    ```bash
-    ./vendor/bin/sail artisan elasticsearch:setup
-    ```
-
-### Frontend Setup (Client)
-
-1. **Navigate to the client directory:**
-
-    ```bash
-    cd ../client
-    ```
-
-2. **Install Node.js dependencies:**
-
-    ```bash
-    npm install
-    ```
-
-3. **Run the development server:**
-
-    ```bash
-    npm run dev
-    ```
-
-4. **Environment Variables:**  
-   - Copy the `env.example` file to `.env` and update the backend API URL accordingly.  
-   - In the backend, update the environment variable for the frontend panel URL if necessary.
-
+  Run the following command to build and start the containers in detached mode:
+  
+  ```bash
+  docker compose up --build -d
+  ```
 ---
 
 ## Usage
@@ -124,7 +88,7 @@ This repository contains the source code for the Software Engineer Coding Challe
 You can create a product via the web interface or the CLI. To create a product from the command line (within the Sail environment), run:
 
 ```bash
-./vendor/bin/sail artisan product:create "Awesome Product" 29.99 \
+docker-compose exec api php artisan product:create "Awesome Product" 29.99 \
     --description="A high-quality, awesome product" \
     --image="https://example.com/images/awesome-product.jpg" \
     --categories="Electronics" \
@@ -143,13 +107,13 @@ Products created via the web interface automatically sync with Elasticsearch.
 After creating products using the command line or seeding the database, update Elasticsearch by running:
 
 ```bash
-./vendor/bin/sail artisan elastic:reindex
+docker-compose exec api php artisan elastic:reindex
 ```
 ## Seeding Large Data:
 To seed the database with 1,000 categories and 1,000,000 products, execute:
 
 ```bash
-./vendor/bin/sail artisan db:seed --class=LargeDataSeeder
+docker-compose exec api php artisan db:seed --class=LargeDataSeeder
 ```
 > **Note:**  
 > - The seeding process may take up to 2 minutes to complete.
@@ -158,7 +122,7 @@ To seed the database with 1,000 categories and 1,000,000 products, execute:
 To run the test suite, execute:
 
 ```bash
-./vendor/bin/sail artisan test
+docker-compose exec api php artisan test
 ```
 Tests are also automatically run on every push to the main branch via GitHub Actions.
 
