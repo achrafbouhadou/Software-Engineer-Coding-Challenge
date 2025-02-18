@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use App\Services\ProductService;
 use App\Services\CategoryService;
-use Illuminate\Validation\ValidationException;
+use App\Services\ProductService;
+use Illuminate\Console\Command;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class CreateProductCommand extends Command
 {
@@ -19,8 +19,7 @@ class CreateProductCommand extends Command
 
     protected $description = 'Create a new product via the CLI';
 
-
-    public function __construct(protected ProductService $productService,protected CategoryService $categoryService)
+    public function __construct(protected ProductService $productService, protected CategoryService $categoryService)
     {
         parent::__construct();
     }
@@ -28,11 +27,11 @@ class CreateProductCommand extends Command
     public function handle()
     {
         $data = [
-            'id'          => (string) Str::uuid(),
-            'name'        => $this->argument('name'),
-            'price'       => $this->argument('price'),
+            'id' => (string) Str::uuid(),
+            'name' => $this->argument('name'),
+            'price' => $this->argument('price'),
             'description' => $this->option('description') ?? '',
-            'image'       => $this->option('image') ?? '',
+            'image' => $this->option('image') ?? '',
         ];
 
         $categoryNames = $this->option('categories') ?? [];
@@ -51,9 +50,9 @@ class CreateProductCommand extends Command
         } catch (ValidationException $e) {
             $errors = [];
             foreach ($e->errors() as $field => $messages) {
-                $errors[] = "$field: " . implode(', ', $messages);
+                $errors[] = "$field: ".implode(', ', $messages);
             }
-            $this->error("Validation failed: " . implode(' | ', $errors));
+            $this->error('Validation failed: '.implode(' | ', $errors));
         }
     }
 }

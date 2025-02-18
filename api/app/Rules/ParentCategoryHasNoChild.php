@@ -2,9 +2,9 @@
 
 namespace App\Rules;
 
+use App\Models\Category;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
-use App\Models\Category;
 
 class ParentCategoryHasNoChild implements ValidationRule
 {

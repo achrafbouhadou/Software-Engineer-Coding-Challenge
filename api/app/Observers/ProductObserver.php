@@ -5,13 +5,11 @@ namespace App\Observers;
 use App\Models\Product;
 use App\Services\CacheService;
 use App\Services\ElasticsearchService;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 class ProductObserver
 {
-
-    public function __construct(protected ElasticsearchService $elasticsearchService , protected CacheService $cacheService)
+    public function __construct(protected ElasticsearchService $elasticsearchService, protected CacheService $cacheService)
     {
         //
     }
@@ -24,6 +22,7 @@ class ProductObserver
         $this->cacheService->incrementCacheVersion('product_cache_version');
 
     }
+
     /**
      * Handle the Product "created" event.
      */
@@ -48,7 +47,7 @@ class ProductObserver
     {
         $params = [
             'index' => 'products',
-            'id' => $product->id
+            'id' => $product->id,
         ];
         $this->elasticsearchService->getClient()->delete($params);
         $this->cacheService->incrementCacheVersion('product_cache_version');
@@ -59,7 +58,7 @@ class ProductObserver
      */
     public function restored(Product $product): void
     {
-        $this->cacheService->incrementCacheVersion('product_cache_version');  
+        $this->cacheService->incrementCacheVersion('product_cache_version');
     }
 
     /**
