@@ -1,4 +1,4 @@
-name: API CI with Docker Compose
+name: API CI without Docker
 
 on:
   push:
@@ -13,27 +13,37 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Verify Docker Compose Version
-        run: docker compose version
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
 
-      - name: Build and Start Containers
-        run: docker compose up -d --build
+      - name: Install Composer Dependencies
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
-      - name: Wait for MySQL Service
+      - name: Ensure MySQL is installed and running
         run: |
-          for i in {1..30}; do
-            if docker exec mysql mysqladmin ping -h "127.0.0.1" --silent; then
-              echo "MySQL is up!"
-              exit 0
-            fi
-            sleep 2
-          done
-          echo "MySQL did not start in time." >&2
-          exit 1
+          if ! command -v mysql >/dev/null 2>&1; then
+            echo "MySQL not found. Installing MySQL Server..."
+            sudo apt-get update
+            sudo apt-get install -y mysql-server
+          else
+            echo "MySQL is already installed."
+          fi
+          echo "Starting MySQL service..."
+          sudo service mysql start
+          # Pause briefly to let MySQL start up.
+          sleep 5
 
-      - name: Run PHPUnit Tests
-        run: docker compose run --rm api php artisan test
+      - name: Create Test Database
+        run: |
+          mysql -u root -e "CREATE DATABASE IF NOT EXISTS test_db;"
+        env:
+          MYSQL_PWD: ""
 
-      - name: Shutdown Containers
-        if: always()
-        run: docker compose down
+      - name: Run Laravel Migrations
+        run: php artisan migrate --force
+
+      - name: Run Tests
+        run: ./vendor/bin/phpunit
