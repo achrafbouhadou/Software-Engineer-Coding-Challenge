@@ -49,7 +49,7 @@ This repository contains the source code for the Software Engineer Coding Challe
 ## Repository Structure
 
 - **api/**  
-  Contains the backend application built with Laravel. It uses Laravel Sail (Docker) for a consistent development environment, along with Redis for caching and Elasticsearch for advanced search capabilities.
+  Contains the backend application built with Laravel. It use Mysql for database and Redis for caching and Elasticsearch for advanced search capabilities.
 
 - **client/**  
   Contains the frontend application built with Vue.js using TypeScript and pinia . This interface provides product and category management, including a dynamic search modal for categories.
