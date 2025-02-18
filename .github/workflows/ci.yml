@@ -14,9 +14,11 @@ jobs:
     name: Laravel (PHP ${{ matrix.php-versions }})
     runs-on: ubuntu-latest
     env:
+      DB_HOST: 127.0.0.1
       DB_DATABASE: laravel
       DB_USERNAME: root
       DB_PASSWORD: password
+      DB_PORT: ${{ job.services.mysql.ports['3306'] }}
 
     services:
       mysql:
