@@ -6,8 +6,8 @@ use App\Models\Category;
 use App\Repositories\Category\CategoryRepository;
 use App\Services\CacheService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
 use Illuminate\Support\Str;
+use Tests\TestCase;
 
 class CategoryRepositoryTest extends TestCase
 {
@@ -34,7 +34,7 @@ class CategoryRepositoryTest extends TestCase
 
     public function test_create_category(): void
     {
-        $data = ['name' => 'New Category' , 'id' => (string) Str::uuid()];
+        $data = ['name' => 'New Category', 'id' => (string) Str::uuid()];
         $resource = $this->categoryRepository->create($data);
 
         $this->assertEquals('New Category', $resource->resource->name);
@@ -42,8 +42,8 @@ class CategoryRepositoryTest extends TestCase
 
     public function test_list_categories(): void
     {
-        Category::create(['name' => 'Category A' , 'id' => (string) Str::uuid()]);
-        Category::create(['name' => 'Category B' , 'id' => (string) Str::uuid()]);
+        Category::create(['name' => 'Category A', 'id' => (string) Str::uuid()]);
+        Category::create(['name' => 'Category B', 'id' => (string) Str::uuid()]);
 
         $resources = $this->categoryRepository->list('Category');
 
@@ -51,9 +51,7 @@ class CategoryRepositoryTest extends TestCase
 
         $this->assertNotEmpty($categories);
         $this->assertTrue(
-            $categories->contains(fn($cat) => str_contains($cat->name, 'Category'))
+            $categories->contains(fn ($cat) => str_contains($cat->name, 'Category'))
         );
     }
-
- 
 }

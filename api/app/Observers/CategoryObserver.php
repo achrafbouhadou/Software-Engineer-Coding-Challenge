@@ -6,13 +6,11 @@ use App\Models\Category;
 use App\Services\CacheService;
 use App\Services\ElasticsearchService;
 use Exception;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 class CategoryObserver
 {
-
-    public function __construct(protected ElasticsearchService $elasticsearchService , protected CacheService $cacheService)
+    public function __construct(protected ElasticsearchService $elasticsearchService, protected CacheService $cacheService)
     {
         //
     }
@@ -64,7 +62,7 @@ class CategoryObserver
     {
         $params = [
             'index' => 'categories',
-            'id' => $category->id
+            'id' => $category->id,
         ];
         $this->elasticsearchService->getClient()->delete($params);
         $this->cacheService->incrementCacheVersion('category_cache_version');

@@ -31,39 +31,38 @@ class ElasticsearchService
     {
         $params = [
             'index' => 'products',
-            'body'  => [
+            'body' => [
                 'mappings' => [
                     'properties' => [
                         'name' => [
                             'type' => 'text',
                             'fields' => [
                                 'keyword' => [
-                                    'type' => 'keyword'
-                                ]
-                            ]
+                                    'type' => 'keyword',
+                                ],
+                            ],
                         ],
                         'description' => [
-                            'type' => 'text'
+                            'type' => 'text',
                         ],
                         'price' => [
-                            'type' => 'float'
+                            'type' => 'float',
                         ],
                         'categories' => [
-                            'type' => 'keyword'
+                            'type' => 'keyword',
                         ],
                         'name_suggest' => [
                             'type' => 'completion',
                             'analyzer' => 'simple',
-                            'search_analyzer' => 'simple'
-                        ]
-                    ]
-                ]
-            ]
+                            'search_analyzer' => 'simple',
+                        ],
+                    ],
+                ],
+            ],
         ];
 
         $this->client->indices()->create($params);
     }
-
 
     /**
      * Index a product with autocomplete suggestions
@@ -77,21 +76,21 @@ class ElasticsearchService
             'name' => $name,
             'description' => $product->description,
             'price' => $product->price,
-            'categories' => $product->categories->pluck('name')->toArray()
+            'categories' => $product->categories->pluck('name')->toArray(),
         ];
 
         if (str_word_count($name) > 1) {
             $body['name_suggest'] = [
-                'input' => $this->generateSuggestions($name)
+                'input' => $this->generateSuggestions($name),
             ];
         }
 
         $params = [
             'index' => 'products',
             'id' => $product->id,
-            'body' => $body
+            'body' => $body,
         ];
-        
+
         return $this->client->index($params);
     }
 
@@ -102,15 +101,15 @@ class ElasticsearchService
     {
         $words = explode(' ', $text);
         $suggestions = [$text];
-        
+
         for ($i = 0; $i < count($words); $i++) {
             $suggestion = '';
             for ($j = $i; $j < count($words); $j++) {
-                $suggestion .= ' ' . $words[$j];
+                $suggestion .= ' '.$words[$j];
                 $suggestions[] = trim($suggestion);
             }
         }
-        
+
         return array_values(array_unique($suggestions));
     }
 
@@ -129,29 +128,29 @@ class ElasticsearchService
                             [
                                 'prefix' => [
                                     'name' => [
-                                        'value' => strtolower($query), 
+                                        'value' => strtolower($query),
                                         'boost' => 3,
-                                    ]
-                                ]
+                                    ],
+                                ],
                             ],
                             [
                                 'match' => [
                                     'name' => [
                                         'query' => strtolower($query),
-                                        'boost' => 2
-                                    ]
-                                ]
+                                        'boost' => 2,
+                                    ],
+                                ],
                             ],
                             [
                                 'match' => [
                                     'description' => [
                                         'query' => strtolower($query),
-                                        'boost' => 1
-                                    ]
-                                ]
-                            ]
-                        ]
-                    ]
+                                        'boost' => 1,
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
                 ],
                 'suggest' => [
                     'name_suggestion' => [
@@ -160,15 +159,14 @@ class ElasticsearchService
                             'field' => 'name_suggest',
                             'size' => 5,
                             'fuzzy' => [
-                                'fuzziness' => 1
-                            ]
-                        ]
-                    ]
+                                'fuzziness' => 1,
+                            ],
+                        ],
+                    ],
                 ],
-                'size' => $size
-            ]
+                'size' => $size,
+            ],
         ];
-
 
         return $this->client->search($params);
     }
@@ -184,24 +182,23 @@ class ElasticsearchService
                             'type' => 'text',
                             'fields' => [
                                 'keyword' => [
-                                    'type' => 'keyword'
-                                ]
-                            ]
+                                    'type' => 'keyword',
+                                ],
+                            ],
                         ],
                         // Explicitly define name_suggest as a completion field
                         'name_suggest' => [
                             'type' => 'completion',
                             'analyzer' => 'simple',
-                            'search_analyzer' => 'simple'
+                            'search_analyzer' => 'simple',
                         ],
-                    ]
-                ]
-            ]
+                    ],
+                ],
+            ],
         ];
-    
+
         $this->client->indices()->create($params);
     }
-    
 
     public function indexCategory($category)
     {
@@ -212,14 +209,14 @@ class ElasticsearchService
 
         if (str_word_count($category->name) > 1) {
             $body['name_suggest'] = [
-                'input' => $this->generateSuggestions($name)
+                'input' => $this->generateSuggestions($name),
             ];
         }
 
         $params = [
             'index' => 'categories',
-            'id'    => $category->id,
-            'body'  => $body,
+            'id' => $category->id,
+            'body' => $body,
         ];
 
         return $this->client->index($params);
@@ -229,28 +226,28 @@ class ElasticsearchService
     {
         $params = [
             'index' => 'categories',
-            'body'  => [
+            'body' => [
                 'query' => [
                     'bool' => [
                         'should' => [
                             [
                                 'prefix' => [
                                     'name' => [
-                                        'value' => strtolower($query), 
+                                        'value' => strtolower($query),
                                         'boost' => 3,
-                                    ]
-                                ]
+                                    ],
+                                ],
                             ],
                             [
                                 'match' => [
                                     'name' => [
                                         'query' => strtolower($query),
                                         'boost' => 2,
-                                    ]
-                                ]
-                            ]
-                        ]
-                    ]
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
                 ],
                 'suggest' => [
                     'name_suggestion' => [
@@ -259,18 +256,18 @@ class ElasticsearchService
                             'field' => 'name_suggest',
                             'size' => 5,
                             'fuzzy' => [
-                                'fuzziness' => 1
-                            ]
-                        ]
-                    ]
+                                'fuzziness' => 1,
+                            ],
+                        ],
+                    ],
                 ],
-                'size' => $size
-            ]
+                'size' => $size,
+            ],
         ];
-    
+
         return $this->client->search($params);
     }
-    
+
     public function deleteProductIndex()
     {
         // Check if the index exists before attempting deletion
@@ -291,7 +288,4 @@ class ElasticsearchService
             $this->logInfo('Category index does not exist.');
         }
     }
-
-
-
 }

@@ -6,12 +6,11 @@ use App\Http\Resources\ProductResource;
 use App\Models\Product;
 use App\Services\CacheService;
 
-class ProductRepository implements ProductRepositoryInterface {
-
+class ProductRepository implements ProductRepositoryInterface
+{
     public function __construct(protected CacheService $cacheService) {}
 
-
-    public function create(array $data) : ProductResource
+    public function create(array $data): ProductResource
     {
         $product = Product::create($data);
 
@@ -22,22 +21,24 @@ class ProductRepository implements ProductRepositoryInterface {
         return new ProductResource($product);
     }
 
-    public function list(array $filters = [], array $sort = []) 
+    public function list(array $filters = [], array $sort = [])
     {
         $version = $this->cacheService->getCacheVersion('product_cache_version');
-        $cacheKey = $this->generateCacheKey($filters, $sort , $version);
-        return $this->cacheService->remember($cacheKey,  function () use ($filters, $sort) {
+        $cacheKey = $this->generateCacheKey($filters, $sort, $version);
+
+        return $this->cacheService->remember($cacheKey, function () use ($filters, $sort) {
             $query = Product::with('categories');
             // Filtering by category name
-            if (!empty($filters['category'])) {
+            if (! empty($filters['category'])) {
                 $query->whereHas('categories', function ($q) use ($filters) {
                     $q->where('id', $filters['category']);
                 });
             }
-    
-            if (!empty($sort['price'])) { 
+
+            if (! empty($sort['price'])) {
                 $query->orderBy('price', $sort['price']);
             }
+
             return ProductResource::collection($query->latest()->take(10)->get());
         });
     }
@@ -45,6 +46,7 @@ class ProductRepository implements ProductRepositoryInterface {
     protected function generateCacheKey(array $filters, array $sort, int $version): string
     {
         $rawData = json_encode(['filters' => $filters, 'sort' => $sort]);
-        return "products:v{$version}:" . md5($rawData);
+
+        return "products:v{$version}:".md5($rawData);
     }
 }

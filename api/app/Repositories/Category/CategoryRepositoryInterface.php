@@ -2,9 +2,11 @@
 
 namespace App\Repositories\Category;
 
-interface CategoryRepositoryInterface {
+interface CategoryRepositoryInterface
+{
     public function create(array $data);
-    public function list(string $name = null);
-    public function findOrCreateByName(string $name);
 
+    public function list(?string $name = null);
+
+    public function findOrCreateByName(string $name);
 }

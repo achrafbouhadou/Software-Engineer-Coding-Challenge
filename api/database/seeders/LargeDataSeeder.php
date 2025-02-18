@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
+use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use Carbon\Carbon;
 
 class LargeDataSeeder extends Seeder
 {
@@ -15,7 +15,6 @@ class LargeDataSeeder extends Seeder
 
         $now = Carbon::now();
 
-    
         $this->command->info('Seeding 1K Categories...');
         $categoriesData = [];
         $generatedCategoryIds = [];
@@ -24,23 +23,22 @@ class LargeDataSeeder extends Seeder
             $uuid = (string) Str::uuid();
             $generatedCategoryIds[] = $uuid;
             $categoriesData[] = [
-                'id'         => $uuid,
-                'name'       => "Category $i",
-                'parent_id'  => null, 
+                'id' => $uuid,
+                'name' => "Category $i",
+                'parent_id' => null,
                 'created_at' => $now,
                 'updated_at' => $now,
             ];
         }
         DB::table('categories')->insert($categoriesData);
 
-       
         $this->command->info('Assigning children to categories ...');
 
         $categories = DB::table('categories')->select('id', 'parent_id')->get();
         $rootCategoryIds = $categories->pluck('id')->toArray();
 
         foreach ($categories as $category) {
-            if (!in_array($category->id, $rootCategoryIds)) {
+            if (! in_array($category->id, $rootCategoryIds)) {
                 continue;
             }
             $numChildren = rand(0, 4);
@@ -55,7 +53,7 @@ class LargeDataSeeder extends Seeder
             $numChildren = min($numChildren, count($availableChildren));
             if ($numChildren > 0) {
                 $selectedKeys = array_rand($availableChildren, $numChildren);
-                if (!is_array($selectedKeys)) {
+                if (! is_array($selectedKeys)) {
                     $selectedKeys = [$selectedKeys];
                 }
                 $childrenIds = [];
@@ -75,13 +73,13 @@ class LargeDataSeeder extends Seeder
 
         $this->command->info('Seeding 1M Products...');
         $totalProducts = 1_000_000;
-        $chunkSize     = 10_000;
-        $iterations    = (int) ceil($totalProducts / $chunkSize);
+        $chunkSize = 10_000;
+        $iterations = (int) ceil($totalProducts / $chunkSize);
 
         $allCategoryIds = DB::table('categories')->pluck('id')->toArray();
 
         for ($i = 0; $i < $iterations; $i++) {
-            $this->command->info("Inserting products chunk " . ($i + 1) . " of {$iterations}");
+            $this->command->info('Inserting products chunk '.($i + 1)." of {$iterations}");
 
             $currentChunkSize = ($i === $iterations - 1)
                 ? $totalProducts - ($chunkSize * $i)
@@ -94,12 +92,12 @@ class LargeDataSeeder extends Seeder
                 $productUuid = (string) Str::uuid();
                 $currentProductIds[] = $productUuid;
                 $productsData[] = [
-                    'id'          => $productUuid,
-                    'name'        => "Product " . $productUuid,
-                    'price'       => rand(100, 1000),
-                    'description' => 'Description for product ' . $productUuid,
-                    'created_at'  => $now,
-                    'updated_at'  => $now,
+                    'id' => $productUuid,
+                    'name' => 'Product '.$productUuid,
+                    'price' => rand(100, 1000),
+                    'description' => 'Description for product '.$productUuid,
+                    'created_at' => $now,
+                    'updated_at' => $now,
                 ];
             }
 
@@ -109,10 +107,10 @@ class LargeDataSeeder extends Seeder
             foreach ($currentProductIds as $productId) {
                 $numCategories = rand(1, 3);
                 if ($numCategories === 1) {
-                    $selectedCategoryIds = [ $allCategoryIds[array_rand($allCategoryIds)] ];
+                    $selectedCategoryIds = [$allCategoryIds[array_rand($allCategoryIds)]];
                 } else {
                     $selectedKeys = array_rand($allCategoryIds, $numCategories);
-                    if (!is_array($selectedKeys)) {
+                    if (! is_array($selectedKeys)) {
                         $selectedKeys = [$selectedKeys];
                     }
                     $selectedCategoryIds = [];
@@ -122,7 +120,7 @@ class LargeDataSeeder extends Seeder
                 }
                 foreach ($selectedCategoryIds as $catId) {
                     $pivotData[] = [
-                        'product_id'  => $productId,
+                        'product_id' => $productId,
                         'category_id' => $catId,
                     ];
                 }

@@ -20,7 +20,7 @@ class CacheService
 
     public function getCacheVersion($key)
     {
-        return Cache::get($key , 1);
+        return Cache::get($key, 1);
     }
 
     public function incrementCacheVersion($key)
@@ -36,5 +36,4 @@ class CacheService
             Cache::increment($key);
         }
     }
-    
 }

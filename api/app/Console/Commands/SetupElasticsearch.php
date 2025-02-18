@@ -2,14 +2,14 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Services\ElasticsearchService;
+use Illuminate\Console\Command;
 
 class SetupElasticsearch extends Command
 {
     protected $signature = 'elasticsearch:setup';
-    protected $description = 'Create Elasticsearch indices for products and categories';
 
+    protected $description = 'Create Elasticsearch indices for products and categories';
 
     public function __construct(protected ElasticsearchService $elasticsearchService)
     {
