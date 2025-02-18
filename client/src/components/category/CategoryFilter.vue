@@ -101,7 +101,9 @@
   };
   
   // Toggles the dropdown open/close
-  const toggleDropdown = () => {
+  const toggleDropdown = (e: Event) => {
+    e.preventDefault();
+    
     isOpen.value = !isOpen.value;
   };
   
