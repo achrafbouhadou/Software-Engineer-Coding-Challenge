@@ -18,7 +18,6 @@ jobs:
       DB_DATABASE: laravel
       DB_USERNAME: root
       DB_PASSWORD: password
-      DB_PORT: ${{ job.services.mysql.ports['3306'] }}
 
     services:
       mysql:
